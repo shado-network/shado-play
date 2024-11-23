@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    // "strict": true,
+    "target": "es6",
+    "module": "node16",
+    "moduleResolution": "node16",
+    //
+    "outDir": "dist",
+    "removeComments": true
+  },
+  "include": ["src", "include"],
+  "exclude": ["node_modules", "dist"]
+}
