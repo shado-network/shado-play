@@ -1,2 +1,4 @@
-echo "START MODE: $*"
-tsc && node --loader ts-node/esm src/index.ts -- $*
+echo "START"
+echo "arguments: $*"
+
+tsc && nodemon --exec 'node --loader ts-node/esm' src/index.ts -- $*
