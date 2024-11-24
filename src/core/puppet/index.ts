@@ -1,3 +1,5 @@
+import { context } from '../../context.ts'
+
 export class Puppet {
   puppetId: string
   puppetDefinition: any
@@ -16,15 +18,19 @@ export class Puppet {
   }
 
   load = async () => {
-    console.log(
-      `[ PUPPET / ${this.puppetId.toUpperCase()} ] Loading puppet definition for "${this.puppetId}"`,
+    context.core.logger.puppet?.(
+      'INFO',
+      this.puppetId,
+      `Loading puppet definition for "${this.puppetId}"`,
     )
 
     const puppet = await import(`../../../include/puppet/${this.puppetId}.ts`)
     const puppetDefinition = puppet.default
 
-    console.log(
-      `[ PUPPET / ${puppetDefinition.id.toUpperCase()} ] ${puppetDefinition.name} has loaded`,
+    context.core.logger.puppet?.(
+      'SUCCESS',
+      this.puppetId,
+      `${puppetDefinition.name} has loaded`,
     )
 
     return puppetDefinition

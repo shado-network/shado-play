@@ -1,3 +1,5 @@
+import { context } from '../../context.ts'
+
 export class Stage {
   stageId: string
   stageDefinition: any
@@ -16,15 +18,19 @@ export class Stage {
   }
 
   load = async () => {
-    console.log(
-      `[ STAGE / ${this.stageId.toUpperCase()} ] Loading stage definition for "${this.stageId}"`,
+    context.core.logger.stage?.(
+      'INFO',
+      this.stageId,
+      `Loading stage definition for "${this.stageId}"`,
     )
 
     const stage = await import(`../../../include/stage/${this.stageId}.ts`)
     const stageDefinition = stage.default
 
-    console.log(
-      `[ STAGE / ${stageDefinition.id.toUpperCase()} ] ${stageDefinition.name} has loaded`,
+    context.core.logger.stage?.(
+      'SUCCESS',
+      this.stageId,
+      `${stageDefinition.name} has loaded`,
     )
 
     return stageDefinition

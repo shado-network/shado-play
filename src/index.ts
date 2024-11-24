@@ -1,5 +1,7 @@
 import { configDotenv } from 'dotenv'
 
+import { context } from './context.ts'
+import { Logger } from './core/logger/index.ts'
 import { Puppet } from './core/puppet/index.ts'
 import { Stage } from './core/stage/index.ts'
 import { parseArgs } from './core/libs/utils.ts'
@@ -14,10 +16,13 @@ console.log('SHADŌ NETWORK')
 console.log('shadow-play')
 console.log('')
 
-console.log(`[ SERVER ] Started on port ${+process.env.SERVER_PORT || 10101}`)
+console.log(`Started on port ${+process.env.SERVER_PORT || 10101}`)
+console.log(`http://localhost:${+process.env.SERVER_PORT || 10101}`)
 console.log('')
 
 //
+
+context.core.logger = new Logger(['terminal'])
 
 const args = parseArgs()
 
@@ -34,7 +39,7 @@ const initStage = (stageId: string) => {
   return stage
 }
 
-const stage = initStage(stageId)
+context.core.stage = initStage(stageId)
 
 const initPuppets = (puppetIds: string[]) => {
   const puppets = []
@@ -47,8 +52,8 @@ const initPuppets = (puppetIds: string[]) => {
   return puppets
 }
 
-const puppets = initPuppets(puppetIds)
+context.core.puppets = initPuppets(puppetIds)
 
 setInterval(() => {
-  console.log('[ SERVER ] PING!')
+  // context.core.logger.server?.('INFO', 'PING!')
 }, 1 * 1000)
