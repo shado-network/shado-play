@@ -18,7 +18,7 @@ export class Puppet {
   }
 
   load = async () => {
-    context.core.logger.puppet?.(
+    context.core.logger.puppet(
       'INFO',
       this.puppetId,
       `Loading puppet definition for "${this.puppetId}"`,
@@ -27,7 +27,7 @@ export class Puppet {
     const puppet = await import(`../../../include/puppet/${this.puppetId}.ts`)
     const puppetDefinition = puppet.default
 
-    context.core.logger.puppet?.(
+    context.core.logger.puppet(
       'SUCCESS',
       this.puppetId,
       `${puppetDefinition.name} has loaded`,

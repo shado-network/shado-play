@@ -18,7 +18,7 @@ export class Stage {
   }
 
   load = async () => {
-    context.core.logger.stage?.(
+    context.core.logger.stage(
       'INFO',
       this.stageId,
       `Loading stage definition for "${this.stageId}"`,
@@ -27,7 +27,7 @@ export class Stage {
     const stage = await import(`../../../include/stage/${this.stageId}.ts`)
     const stageDefinition = stage.default
 
-    context.core.logger.stage?.(
+    context.core.logger.stage(
       'SUCCESS',
       this.stageId,
       `${stageDefinition.name} has loaded`,

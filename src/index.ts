@@ -55,5 +55,5 @@ const initPuppets = (puppetIds: string[]) => {
 context.core.puppets = initPuppets(puppetIds)
 
 setInterval(() => {
-  // context.core.logger.server?.('INFO', 'PING!')
+  // context.core.logger.server('INFO', 'PING!')
 }, 1 * 1000)
