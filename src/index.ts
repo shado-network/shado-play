@@ -1,4 +1,4 @@
-import { configDotenv } from 'dotenv'
+import dotenv from 'dotenv'
 
 import { context } from './context.ts'
 import { Logger } from './core/logger/index.ts'
@@ -6,7 +6,7 @@ import { Puppet } from './core/puppet/index.ts'
 import { Stage } from './core/stage/index.ts'
 import { parseArgs } from './core/libs/utils.ts'
 
-configDotenv()
+dotenv.config()
 
 console.clear()
 
@@ -22,7 +22,7 @@ console.log('')
 
 //
 
-context.core.logger = new Logger(['terminal'])
+context.core.logger = new Logger(['console'])
 
 const args = parseArgs()
 

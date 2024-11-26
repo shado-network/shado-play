@@ -1,23 +1,24 @@
 import { context } from '../../context.ts'
+import type { StageDefinition } from '../types/stage.ts'
 
 export class Stage {
   stageId: string
-  stageDefinition: any
+  stageDefinition: StageDefinition
 
   constructor(stageId: string) {
     this.stageId = stageId
-    this.init()
+    this._init()
   }
 
-  init = async () => {
+  _init = async () => {
     try {
-      const stage = await this.load()
+      this.stageDefinition = await this._loadStageDefinition()
     } catch (error) {
       console.error(error)
     }
   }
 
-  load = async () => {
+  _loadStageDefinition = async () => {
     context.core.logger.stage(
       'INFO',
       this.stageId,
@@ -30,7 +31,7 @@ export class Stage {
     context.core.logger.stage(
       'SUCCESS',
       this.stageId,
-      `${stageDefinition.name} has loaded`,
+      `Loaded stage definition for "${this.stageId}"`,
     )
 
     return stageDefinition

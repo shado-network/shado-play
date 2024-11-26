@@ -1,12 +1,13 @@
-type LoggerType = 'SUCCESS' | 'WARNING' | 'DANGER' | 'INFO'
+type LoggerType = 'SUCCESS' | 'WARNING' | 'DANGER' | 'INFO' | 'LOG'
 
 export class Logger {
   config = {
     interfaces: {
-      terminal: false,
+      console: false,
       rest: false,
     },
     icons: false,
+    showUser: false,
   }
 
   // MARK: Node.js console colors.
@@ -48,11 +49,11 @@ export class Logger {
   //
 
   constructor(interfaceIds: string[]) {
-    if (interfaceIds.includes('terminal')) {
-      this.config.interfaces.terminal = true
+    if (interfaceIds.includes('console')) {
+      this.config.interfaces.console = true
     }
 
-    this.server('SUCCESS', 'CoreLogger has started')
+    this.server('SUCCESS', 'Started CoreLogger')
   }
 
   _getColor = (fgColorName = '', bgColorName = '') => {
@@ -80,28 +81,68 @@ export class Logger {
     }
   }
 
+  _writeConsoleMessage = (
+    type: LoggerType,
+    header: string,
+    message: string,
+    payload: unknown,
+    styling: string,
+    icon: string,
+  ) => {
+    console.log(styling, header, this._resetColor(), `${icon}${type}`)
+    payload ? console.log('', message, payload) : console.log('', message)
+    console.log('')
+  }
+
   //
 
   log = (type: LoggerType, message: string, payload = null) => {
-    if (this.config.interfaces.terminal) {
+    if (this.config.interfaces.console) {
+      const styling = this._getColor('white', '')
       const icon = this._getIcon(type)
 
-      console.log('', `[ LOG ]`, '', `${icon}${type}`)
-      payload ? console.log('', message, payload) : console.log('', message)
-      console.log('')
+      this._writeConsoleMessage(
+        type,
+        '[ LOG ]',
+        message,
+        payload,
+        styling,
+        icon,
+      )
+    }
+  }
+
+  error = (type: LoggerType, message: string, payload = null) => {
+    if (this.config.interfaces.console) {
+      const styling = this._getColor('red', '')
+      const icon = this._getIcon(type)
+
+      this._writeConsoleMessage(
+        type,
+        '[ ERROR ]',
+        message,
+        payload,
+        styling,
+        icon,
+      )
     }
   }
 
   //
 
   server = (type: LoggerType, message: string, payload = null) => {
-    if (this.config.interfaces.terminal) {
-      const styling = this._getColor('red', '')
+    if (this.config.interfaces.console) {
+      const styling = this._getColor('green', '')
       const icon = this._getIcon(type)
 
-      console.log(styling, `[ SERVER ]`, this._resetColor(), `${icon}${type}`)
-      payload ? console.log('', message, payload) : console.log('', message)
-      console.log('')
+      this._writeConsoleMessage(
+        type,
+        '[ SERVER ]',
+        message,
+        payload,
+        styling,
+        icon,
+      )
     }
   }
 
@@ -111,18 +152,18 @@ export class Logger {
     message: string,
     payload = null,
   ) => {
-    if (this.config.interfaces.terminal) {
+    if (this.config.interfaces.console) {
       const styling = this._getColor('blue', '')
       const icon = this._getIcon(type)
 
-      console.log(
-        styling,
+      this._writeConsoleMessage(
+        type,
         `[ STAGE / ${stageId.toUpperCase()} ]`,
-        this._resetColor(),
-        `${icon}${type}`,
+        message,
+        payload,
+        styling,
+        icon,
       )
-      payload ? console.log('', message, payload) : console.log('', message)
-      console.log('')
     }
   }
 
@@ -132,18 +173,85 @@ export class Logger {
     message: string,
     payload = null,
   ) => {
-    if (this.config.interfaces.terminal) {
+    if (this.config.interfaces.console) {
       const styling = this._getColor('magenta', '')
       const icon = this._getIcon(type)
 
-      console.log(
-        styling,
+      this._writeConsoleMessage(
+        type,
         `[ PUPPET / ${puppetId.toUpperCase()} ]`,
-        this._resetColor(),
-        `${icon}${type}`,
+        message,
+        payload,
+        styling,
+        icon,
       )
-      payload ? console.log('', message, payload) : console.log('', message)
-      console.log('')
+    }
+  }
+
+  agent = (
+    type: LoggerType,
+    puppetId: string,
+    message: string,
+    payload = null,
+  ) => {
+    if (this.config.interfaces.console) {
+      const styling = this._getColor('yellow', '')
+      const icon = this._getIcon(type)
+
+      this._writeConsoleMessage(
+        type,
+        `< ${puppetId.toUpperCase()} >`,
+        message,
+        payload,
+        styling,
+        icon,
+      )
+    }
+  }
+
+  play = (
+    type: LoggerType,
+    stageId: string,
+    message: string,
+    payload = null,
+  ) => {
+    if (this.config.interfaces.console) {
+      const styling = this._getColor('red', '')
+      const icon = this._getIcon(type)
+
+      this._writeConsoleMessage(
+        type,
+        `< ${stageId.toUpperCase()} >`,
+        message,
+        payload,
+        styling,
+        icon,
+      )
+    }
+  }
+
+  user = (
+    type: LoggerType,
+    userId: string,
+    message: string,
+    payload = null,
+  ) => {
+    if (!this.config.showUser) {
+      return
+    }
+
+    if (this.config.interfaces.console) {
+      const styling = this._getColor('cyan', '')
+      const icon = this._getIcon(type)
+
+      this._writeConsoleMessage(
+        type,
+        `< ${userId.toUpperCase()} >`,
+        message,
+        payload,
+        styling,
+        icon,
+      )
     }
   }
 }

@@ -4,7 +4,16 @@
 node_modules/
 dist/
 
-include/
+cache/*
+!cache/.gitkeep
+
+include/puppet/*
+include/stage/*
+!include/puppet/.gitkeep
+!include/puppet/good.ts
+!include/puppet/evil.ts
+!include/stage/.gitkeep
+!include/stage/bardo.ts
 
 .env*
 !.env.template
