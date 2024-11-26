@@ -1,7 +1,6 @@
 import type { MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs'
 
-import { context } from '../../../context.ts'
-
+import type { CoreLogger } from '../../core-logger/index.ts'
 import type { PuppetDefinition } from '../../../core/types/puppet.ts'
 import type { AnthropicClientPlugin } from '../../client-anthropic/index.ts'
 import type { TwitterClientPlugin } from '../../client-twitter/index.ts'
@@ -13,6 +12,7 @@ const modelActions = {
     agentDefinition: PuppetDefinition,
     messages: MessageParam[],
     agent: AnthropicClientPlugin,
+    _logger: CoreLogger,
   ) => {
     const response = await agent.getMessagesResponse(
       messages,
@@ -24,8 +24,14 @@ const modelActions = {
       content: response,
     })
 
-    context.core.logger.agent('LOG', agentDefinition.id, 'Wrote a message:', {
-      message: response,
+    _logger.send({
+      type: 'LOG',
+      source: 'AGENT',
+      puppetId: agentDefinition.id,
+      message: 'Wrote a message:',
+      payload: {
+        message: response,
+      },
     })
   },
 }
@@ -34,6 +40,7 @@ const twitterActions = {
   login: async (
     agentDefinition: PuppetDefinition,
     twitterClient: TwitterClientPlugin,
+    _logger: CoreLogger,
   ) => {
     await twitterClient.login(agentDefinition)
   },
@@ -41,6 +48,7 @@ const twitterActions = {
     agentDefinition: PuppetDefinition,
     messages: MessageParam[],
     twitterClient: TwitterClientPlugin,
+    _logger: CoreLogger,
   ) => {
     return await twitterClient.readMessage(agentDefinition, messages)
   },

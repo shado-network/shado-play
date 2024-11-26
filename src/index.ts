@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 
 import { context } from './context.ts'
-import { Logger } from './core/logger/index.ts'
+import { CoreLogger } from './plugin/core-logger/index.ts'
 import { Puppet } from './core/puppet/index.ts'
 import { Stage } from './core/stage/index.ts'
 import { parseArgs } from './core/libs/utils.ts'
@@ -22,7 +22,7 @@ console.log('')
 
 //
 
-context.core.logger = new Logger(['console'])
+context.core._logger = new CoreLogger(['console'])
 
 const args = parseArgs()
 
@@ -35,7 +35,7 @@ const puppetIds = args.puppets
 //
 
 const initStage = (stageId: string) => {
-  const stage = new Stage(stageId)
+  const stage = new Stage(stageId, context.core._logger)
   return stage
 }
 
@@ -45,7 +45,7 @@ const initPuppets = (puppetIds: string[]) => {
   const puppets = []
 
   puppetIds.forEach((puppetId) => {
-    const puppet = new Puppet(puppetId)
+    const puppet = new Puppet(puppetId, context.core._logger)
     puppets.push(puppet)
   })
 
@@ -55,5 +55,5 @@ const initPuppets = (puppetIds: string[]) => {
 context.core.puppets = initPuppets(puppetIds)
 
 setInterval(() => {
-  // context.core.logger.server('INFO', 'PING!')
+  // context.core._logger.send({ type: 'INFO', source: 'SERVER', message: 'PING!' })
 }, 1 * 1000)

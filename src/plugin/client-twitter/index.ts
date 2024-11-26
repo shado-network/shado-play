@@ -5,9 +5,9 @@ import dotenv from 'dotenv'
 import { Scraper, SearchMode, Tweet } from 'agent-twitter-client'
 import type { MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs'
 
-import { context } from '../../context.ts'
 import { cookies } from './libs/utils.ts'
 import { asyncSleep } from '../../core/libs/utils.ts'
+import type { CoreLogger } from '../core-logger/index.ts'
 import type { PuppetDefinition } from '../../core/types/puppet.ts'
 
 dotenv.config()
@@ -18,9 +18,24 @@ const __dirname = path.dirname(__filename)
 const cacheDirectoryPaths = [__dirname, '../../../cache/twitter']
 
 export class TwitterClientPlugin {
+  config: {
+    MAX_LOGIN_ATTEMPTS: 3
+    ATTEMPT_INTERVAL_SECONDS: 2
+  }
+
+  //
+
+  clientConfig: {}
+
   client: Scraper
 
-  constructor() {
+  //
+
+  _logger: CoreLogger
+
+  constructor(_logger: CoreLogger) {
+    this._logger = _logger
+
     this.client = new Scraper()
   }
 
@@ -41,23 +56,23 @@ export class TwitterClientPlugin {
         const cookieStrings = await cookies.toCookieStrings(cookiesArray)
         await this.client.setCookies(cookieStrings)
 
-        context.core.logger.puppet(
-          'INFO',
-          agentDefinition.id,
-          "Found it's previous Twitter cookies",
-        )
+        this._logger.send({
+          type: 'INFO',
+          source: 'PUPPET',
+          puppetId: agentDefinition.id,
+          message: "Found it's previous Twitter cookies",
+        })
       }
 
       let loginAttempts = 0
-      const MAX_LOGIN_ATTEMPTS = 3
-      const ATTEMPT_INTERVAL_SECONDS = 2
 
       while (true) {
-        context.core.logger.puppet(
-          'LOG',
-          agentDefinition.id,
-          `Twitter login attempt #${loginAttempts + 1}`,
-        )
+        this._logger.send({
+          type: 'LOG',
+          source: 'PUPPET',
+          puppetId: agentDefinition.id,
+          message: `Twitter login attempt #${loginAttempts + 1}`,
+        })
 
         await this.client.login(
           process.env[`TWITTER_${agentDefinition.id.toUpperCase()}_USERNAME`],
@@ -66,27 +81,30 @@ export class TwitterClientPlugin {
         )
 
         if (await this.client.isLoggedIn()) {
-          context.core.logger.puppet(
-            'SUCCESS',
-            agentDefinition.id,
-            `Logged into Twitter`,
-          )
+          this._logger.send({
+            type: 'SUCCESS',
+            source: 'PUPPET',
+            puppetId: agentDefinition.id,
+            message: `Logged into Twitter`,
+          })
 
           try {
             const cookiesArray = await this.client.getCookies()
             cookies.store(cookiesArray, cookiesFilepath)
 
-            context.core.logger.puppet(
-              'SUCCESS',
-              agentDefinition.id,
-              `Stored it's new Twitter cookies`,
-            )
+            this._logger.send({
+              type: 'SUCCESS',
+              source: 'PUPPET',
+              puppetId: agentDefinition.id,
+              message: `Stored it's new Twitter cookies`,
+            })
           } catch (error) {
-            context.core.logger.error(
-              'DANGER',
-              agentDefinition.id,
-              `Could not store it's new Twitter cookies`,
-            )
+            this._logger.send({
+              type: 'ERROR',
+              source: 'PUPPET',
+              puppetId: agentDefinition.id,
+              message: `Could not store it's new Twitter cookies`,
+            })
           }
 
           break
@@ -94,19 +112,28 @@ export class TwitterClientPlugin {
 
         loginAttempts++
 
-        if (loginAttempts > MAX_LOGIN_ATTEMPTS) {
-          context.core.logger.error(
-            'DANGER',
-            agentDefinition.id,
-            `Failed to log in to Twitter after ${loginAttempts} attempts`,
-          )
+        if (loginAttempts > this.config.MAX_LOGIN_ATTEMPTS) {
+          this._logger.send({
+            type: 'ERROR',
+            source: 'PUPPET',
+            puppetId: agentDefinition.id,
+            message: `Failed to log in to Twitter after ${loginAttempts} attempts`,
+          })
           break
         }
 
-        await asyncSleep(ATTEMPT_INTERVAL_SECONDS * (loginAttempts + 1))
+        await asyncSleep(
+          this.config.ATTEMPT_INTERVAL_SECONDS * (loginAttempts + 1),
+        )
       }
     } catch (error) {
-      console.error({ error })
+      this._logger.send({
+        type: 'ERROR',
+        source: 'PUPPET',
+        puppetId: agentDefinition.id,
+        message: `Error logging in to Twitter`,
+        payload: { error },
+      })
       return null
     }
   }
@@ -160,11 +187,21 @@ export class TwitterClientPlugin {
         tweets.push(parsedTweet)
       }
     } catch (error) {
-      context.core.logger.error('DANGER', 'Error', error)
+      this._logger.send({
+        type: 'ERROR',
+        source: 'PUPPET',
+        message: 'Error',
+        payload: error,
+      })
     }
-
-    context.core.logger.puppet('LOG', agentDefinition.id, 'Read some Tweets:', {
-      tweets: tweets,
+    this._logger.send({
+      type: 'LOG',
+      source: 'AGENT',
+      puppetId: agentDefinition.id,
+      message: 'Read some Tweets:',
+      payload: {
+        tweets: tweets,
+      },
     })
 
     // const response = await this.client.sendTweet('Hello world!', tweets.at(0).id)
@@ -176,12 +213,24 @@ export class TwitterClientPlugin {
     //   content: message,
     // })
 
-    // context.core.logger.user('LOG', userId, 'Wrote a message:', {
-    //   message: message,
+    // this._logger.send({
+    //   type: 'LOG',
+    //   source: 'USER',
+    //   userId: userId,
+    //   message: 'Wrote a message:',
+    //   payload: {
+    //     message: message,
+    //   },
     // })
 
-    // context.core.logger.puppet('LOG', agentDefinition.id, 'Read a message:', {
-    //   message: message,
+    // this._logger.send({
+    //   type: 'LOG',
+    //   source: 'PUPPET',
+    //   puppetId: agentDefinition.id,
+    //   message: 'Read a message:',
+    //   payload: {
+    //     message: message,
+    //   },
     // })
 
     return {

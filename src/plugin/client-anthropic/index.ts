@@ -6,6 +6,8 @@ import type {
   MessageParam,
 } from '@anthropic-ai/sdk/resources/messages.mjs'
 
+import type { CoreLogger } from '../core-logger'
+
 dotenv.config()
 
 export class AnthropicClientPlugin {
@@ -27,7 +29,13 @@ export class AnthropicClientPlugin {
 
   client: Anthropic
 
-  constructor() {
+  //
+
+  _logger: CoreLogger
+
+  constructor(_logger: CoreLogger) {
+    this._logger = _logger
+
     this.client = new Anthropic(this.clientOptions)
   }
 
@@ -49,7 +57,14 @@ export class AnthropicClientPlugin {
     const responseText = (response?.content[0] as TextBlock)?.text || null
 
     if (responseText === null) {
-      console.warn(response.content)
+      this._logger.send({
+        type: 'WARNING',
+        source: 'SERVER',
+        message: 'Error parsing response',
+        payload: {
+          content: response.content,
+        },
+      })
     }
 
     return responseText

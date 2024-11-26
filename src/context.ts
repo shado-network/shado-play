@@ -1,11 +1,11 @@
-import type { Logger } from './core/logger'
+import type { CoreLogger } from './plugin/core-logger'
 import type { Stage } from './core/stage'
 import type { Puppet } from './core/puppet'
 
 type Context = {
   config: unknown
   core: {
-    logger: null | Logger
+    _logger: null | CoreLogger
     stage: null | Stage
     puppets: Puppet[]
   }
@@ -14,7 +14,7 @@ type Context = {
 export const context: Context = {
   config: {},
   core: {
-    logger: null,
+    _logger: null,
     stage: null,
     puppets: [],
   },
