@@ -18,14 +18,14 @@ const __dirname = path.dirname(__filename)
 const cacheDirectoryPaths = [__dirname, '../../../cache/twitter']
 
 export class TwitterClientPlugin {
-  config: {
-    MAX_LOGIN_ATTEMPTS: 3
-    ATTEMPT_INTERVAL_SECONDS: 2
+  config = {
+    MAX_LOGIN_ATTEMPTS: 3,
+    ATTEMPT_INTERVAL_SECONDS: 2,
   }
 
   //
 
-  clientConfig: {}
+  clientConfig = {}
 
   client: Scraper
 
@@ -40,8 +40,6 @@ export class TwitterClientPlugin {
   }
 
   login = async (agentDefinition: PuppetDefinition) => {
-    //
-
     cookies.createDirectory(cacheDirectoryPaths)
     const cookiesFilepath = cookies.getFilepath(
       cacheDirectoryPaths,
@@ -138,7 +136,7 @@ export class TwitterClientPlugin {
     }
   }
 
-  readMessage = async (
+  getMessages = async (
     agentDefinition: PuppetDefinition,
     messages: MessageParam[],
   ) => {

@@ -5,7 +5,7 @@ import type { CoreLogger } from '../../plugin/core-logger/index.ts'
 export class Puppet {
   puppetId: string
   puppetDefinition: PuppetDefinition
-  agent: any
+  agent: CoreAgentPlugin
 
   _logger: CoreLogger
 
@@ -60,7 +60,7 @@ export class Puppet {
         this.agent = new CoreAgentPlugin(this.puppetDefinition, this._logger)
 
         this._logger.send({
-          type: 'INFO',
+          type: 'SUCCESS',
           source: 'PUPPET',
           puppetId: this.puppetId,
           message: `Loaded puppet agent plugin "${this.puppetDefinition.agentProvider}"`,

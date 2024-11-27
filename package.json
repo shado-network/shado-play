@@ -26,6 +26,7 @@
     "agent-twitter-client": "^0.0.14",
     "dotenv": "^16.4.5",
     "prettier": "^3.3.3",
+    "telegraf": "^4.16.3",
     "yargs": "^17.7.2"
   }
 }

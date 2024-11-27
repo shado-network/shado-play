@@ -4,6 +4,7 @@ export type PuppetDefinition = {
   //
   agentProvider: 'shado' | 'eliza'
   modelProvider: 'openai' | 'anthropic'
+  interfaces: ('twitter' | 'telegram')[]
   //
   bio: string[]
   //

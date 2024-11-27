@@ -1,15 +1,17 @@
 import type { MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs'
 
 import { AnthropicClientPlugin } from '../client-anthropic/index.ts'
+import { TelegramClientPlugin } from '../client-telegram/index.ts'
 import { TwitterClientPlugin } from '../client-twitter/index.ts'
 import type { CoreLogger } from '../core-logger/index.ts'
-import type { PuppetDefinition } from '../../core/types/puppet'
+import type { PuppetDefinition } from '../../core/types/puppet.ts'
 
-import { actions } from './libs/actions.ts'
+import { runtimes } from './libs/runtimes.ts'
 
 export class CoreAgentPlugin {
   agentDefinition: PuppetDefinition
-  agent: AnthropicClientPlugin
+  model: AnthropicClientPlugin
+  telegramClient: TelegramClientPlugin
   twitterClient: TwitterClientPlugin
 
   messages: MessageParam[] = []
@@ -19,13 +21,14 @@ export class CoreAgentPlugin {
   constructor(puppetDefinition: PuppetDefinition, _logger: CoreLogger) {
     this._logger = _logger
     this.agentDefinition = puppetDefinition
+
     this._init()
   }
 
   _init = async () => {
     try {
       this._setModelPlugin()
-      this.twitterClient = new TwitterClientPlugin(this._logger)
+      this._initInterfaces()
 
       await this._debug()
     } catch (error) {
@@ -49,9 +52,9 @@ export class CoreAgentPlugin {
         })
         break
       case 'anthropic':
-        this.agent = new AnthropicClientPlugin(this._logger)
+        this.model = new AnthropicClientPlugin(this._logger)
         this._logger.send({
-          type: 'INFO',
+          type: 'SUCCESS',
           source: 'PUPPET',
           puppetId: this.agentDefinition.id,
           message: `Loaded puppet model plugin "${this.agentDefinition.modelProvider}"`,
@@ -62,76 +65,37 @@ export class CoreAgentPlugin {
     }
   }
 
-  _debug = async () => {
-    this.messages.push({
-      role: 'user',
-      content: `Hey, ${this.agentDefinition.name}! What are you thinking about today?`,
-    })
-
-    this._logger.send({
-      type: 'LOG',
-      source: 'USER',
-      userId: 'user',
-      message: 'Wrote a message:',
-      payload: {
-        message: `Hey, ${this.agentDefinition.name}! What are you thinking about today?`,
-      },
-    })
-
-    // const interval = setInterval(
-    // async () => {
-    try {
-      if (!this.twitterClient) {
-        return
-      }
-      // MARK: Login
-      await actions.twitter.login(
+  _initInterfaces = async () => {
+    // MARK: Telegram
+    if (this.agentDefinition.interfaces.includes('telegram')) {
+      this.telegramClient = new TelegramClientPlugin(
         this.agentDefinition,
-        this.twitterClient,
         this._logger,
       )
-
-      // MARK: Read
-      const readMessage = await actions.twitter.readMessage(
-        this.agentDefinition,
-        this.messages,
-        this.twitterClient,
-        this._logger,
-      )
-
-      if (readMessage.shouldReply) {
-        // MARK: Write
-        // await actions.model.generateResponse(
-        //   this.agentDefinition,
-        //   this.messages,
-        //   this.agent,
-        //   this._logger,
-        // )
-      } else {
-        this._logger.send({
-          type: 'LOG',
-          source: 'AGENT',
-          puppetId: this.agentDefinition.id,
-          message: "Won't reply to the message:",
-          payload: {
-            message: readMessage.message,
-          },
-        })
-      }
-
-      // MARK: Post
-      // TODO: Tweet
-    } catch (error) {
-      this._logger.send({
-        type: 'ERROR',
-        source: 'PUPPET',
-        puppetId: this.agentDefinition.id,
-        message: `Error in agent runtime`,
-        payload: { error },
-      })
     }
-    // },
-    // 5 * 60 * 1000,
-    // )
+
+    // MARK: Twitter
+    if (this.agentDefinition.interfaces.includes('twitter')) {
+      this.twitterClient = new TwitterClientPlugin(this._logger)
+    }
+  }
+
+  _debug = async () => {
+    // MARK: Telegram
+    runtimes.telegram(
+      this.agentDefinition,
+      this.model,
+      this.telegramClient,
+      this._logger,
+    )
+
+    // MARK: Twitter
+    runtimes.twitter(
+      this.agentDefinition,
+      this.model,
+      this.messages,
+      this.twitterClient,
+      this._logger,
+    )
   }
 }
