@@ -30,19 +30,21 @@ export class CoreLogger {
         magenta: '\x1b[35m',
         cyan: '\x1b[36m',
         white: '\x1b[37m',
+        gray: '\x1b[90m',
         //
         default: '\x1b[37m',
         clear: '\x1b[0m',
       },
       bg: {
         black: '\x1b[40m',
-        red: '\x1b[44m',
-        green: '\x1b[44m',
+        red: '\x1b[41m',
+        green: '\x1b[42m',
         yellow: '\x1b[43m',
         blue: '\x1b[44m',
         magenta: '\x1b[45m',
         cyan: '\x1b[46m',
         white: '\x1b[47m',
+        gray: '\x1b[100m',
         //
         default: '\x1b[47m',
         clear: '',
@@ -102,19 +104,27 @@ export class CoreLogger {
     type,
     message,
     payload,
-    header,
-    styling,
+    //
+    typeStyling,
     icon,
+    headerStyling,
+    header,
   }: {
     type: CoreLog['type']
     message: CoreLog['message']
     payload: CoreLog['payload']
     header: string
-    styling: string
+    headerStyling: string
+    typeStyling: string
     icon: string
   }) => {
-    console.log(styling, header, this._resetColor(), `${icon}${type}`)
-    payload ? console.log('', message, payload) : console.log('', message)
+    // console.log(typeStyling + ` ${icon}${type} ` + this._resetColor())
+
+    console.log(
+      headerStyling + header + this._resetColor(),
+      typeStyling + ` ${icon}${type} ` + this._resetColor(),
+    )
+    payload ? console.log(message, payload) : console.log(message)
     console.log('')
   }
 
@@ -130,63 +140,80 @@ export class CoreLogger {
     payload = null,
   }: CoreLog) => {
     if (this.config.interfaces.console) {
-      let styling: string
+      let typeStyling: string
       let icon: string
+      let headerStyling: string
       let header: string
+
+      switch (type) {
+        case 'SUCCESS':
+          typeStyling = this._getColor('black', 'green')
+          icon = this._getIcon(type)
+          break
+        case 'WARNING':
+          typeStyling = this._getColor('black', 'yellow')
+          icon = this._getIcon(type)
+          break
+        case 'ERROR':
+          typeStyling = this._getColor('black', 'red')
+          icon = this._getIcon(type)
+          break
+        case 'INFO':
+          typeStyling = this._getColor('black', 'blue')
+          icon = this._getIcon(type)
+          break
+        case 'LOG':
+          typeStyling = this._getColor('default', '')
+          icon = this._getIcon(type)
+          break
+        //
+        default:
+          typeStyling = this._getColor('default', '')
+          icon = this._getIcon('default')
+          break
+      }
 
       switch (source) {
         case 'SERVER':
-          styling = this._getColor('green', '')
-          icon = this._getIcon(type)
+          headerStyling = this._getColor('green', '')
           header = '[ SERVER ]'
           break
         case 'STAGE':
-          styling = this._getColor('blue', '')
-          icon = this._getIcon(type)
+          headerStyling = this._getColor('blue', '')
           header = `[ STAGE / ${stageId.toUpperCase()} ]`
           break
         case 'PUPPET':
-          styling = this._getColor('magenta', '')
-          icon = this._getIcon(type)
+          headerStyling = this._getColor('magenta', '')
           header = `[ PUPPET / ${puppetId.toUpperCase()} ]`
           break
         //
         case 'WORLD':
-          styling = this._getColor('red', '')
-          icon = this._getIcon(type)
+          headerStyling = this._getColor('red', '')
           header = `< ${stageId.toUpperCase()} >`
           break
         case 'AGENT':
-          styling = this._getColor('yellow', '')
-          icon = this._getIcon(type)
+          headerStyling = this._getColor('yellow', '')
           header = `< ${puppetId.toUpperCase()} >`
           break
         case 'USER':
-          styling = this._getColor('cyan', '')
-          icon = this._getIcon(type)
+          headerStyling = this._getColor('cyan', '')
           header = `< ${userId.toUpperCase()} >`
           break
         //
         default:
-          styling = this._getColor('default', '')
-          icon = this._getIcon('default')
+          headerStyling = this._getColor('default', '')
           header = '[ LOG ]'
           break
-      }
-
-      if (type === 'ERROR') {
-        styling = this._getColor('black', 'red')
-        icon = this._getIcon(type)
-        // header = '[ ERROR ]'
       }
 
       this._writeConsoleMessage({
         type,
         message,
         payload,
-        header,
-        styling,
+        typeStyling,
         icon,
+        headerStyling,
+        header,
       })
     }
   }
