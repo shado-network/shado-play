@@ -7,13 +7,9 @@ dist/
 cache/*
 !cache/.gitkeep
 
-include/puppet/*
-include/stage/*
-!include/puppet/.gitkeep
-!include/puppet/good.ts
-!include/puppet/evil.ts
-!include/stage/.gitkeep
-!include/stage/bardo.ts
+include/play/*
+!include/play/.gitkeep
+!include/play/bardo.ts
 
 .env*
 !.env.template

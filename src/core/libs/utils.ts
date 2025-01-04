@@ -14,18 +14,13 @@ export const asyncSleep = async (seconds: number) => {
 }
 
 export function parseArgs(): {
-  stage: string
-  puppets: string
+  play: string
 } {
   try {
     const args = yargs(hideBin(process.argv))
-      .option('stage', {
+      .option('play', {
         type: 'string',
-        description: 'A single Stage ID.',
-      })
-      .option('puppets', {
-        type: 'string',
-        description: 'A comma separated list of Puppet IDs.',
+        description: 'A single Play ID.',
       })
       .parseSync()
 
@@ -39,8 +34,7 @@ export function parseArgs(): {
     })
 
     return {
-      stage: null,
-      puppets: null,
+      play: null,
     }
   }
 }

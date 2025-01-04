@@ -1,13 +1,11 @@
 import type { CoreLogger } from './plugin/core-logger'
-import type { Stage } from './core/stage'
-import type { Puppet } from './core/puppet'
+import type { Play } from './core/play'
 
 type Context = {
   config: unknown
   core: {
     _logger: null | CoreLogger
-    stage: null | Stage
-    puppets: Puppet[]
+    play: null | Play
   }
 }
 
@@ -15,7 +13,6 @@ export const context: Context = {
   config: {},
   core: {
     _logger: null,
-    stage: null,
-    puppets: [],
+    play: null,
   },
 }
