@@ -12,7 +12,7 @@ console.clear()
 //
 
 console.log('SHADŌ NETWORK')
-console.log('shadow-play')
+console.log('shado-play')
 console.log('')
 
 console.log(`Started on port ${+process.env.SERVER_PORT || 10101}`)

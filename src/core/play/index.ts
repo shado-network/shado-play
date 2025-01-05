@@ -36,7 +36,7 @@ export class Play {
       message: `Loading play definition for "${this.playId}"`,
     })
 
-    const play = await import(`../../../include/play/${this.playId}.ts`)
+    const play = await import(`../../../include/${this.playId}.ts`)
     const playDefinition = play.default
 
     this._logger.send({

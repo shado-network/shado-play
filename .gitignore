@@ -7,9 +7,9 @@ dist/
 cache/*
 !cache/.gitkeep
 
-include/play/*
-!include/play/.gitkeep
-!include/play/bardo.ts
+include/*
+!include/.gitkeep
+!include/bardo.ts
 
 .env*
 !.env.template
