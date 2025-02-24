@@ -1,8 +1,18 @@
-import type { PlayDefinition } from '../src/core/types/play'
+import type { PlayConfig } from '@core/play/types'
 
-const play: PlayDefinition = {
+import dotenv from 'dotenv'
+dotenv.config({ path: '.env.bardo' })
+
+const playConfig: PlayConfig = {
   id: 'bardo',
   name: 'Bardō',
+  //
+  planner: {
+    provider: 'shado-planner-htn',
+    config: {
+      goals: [],
+    },
+  },
 }
 
-export default play
+export default playConfig

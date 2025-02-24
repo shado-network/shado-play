@@ -12,7 +12,7 @@ include/*
 
 .env*
 !.env.template
-!.playid.template
+!.env.playid.template
 
 ###
 
