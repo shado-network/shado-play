@@ -3,9 +3,6 @@
 node_modules/
 dist/
 
-cache/*
-!cache/.gitkeep
-
 include/*
 !include/.gitkeep
 !include/bardo.ts
@@ -17,3 +14,4 @@ include/*
 ###
 
 _TMP/
+_DEV/
