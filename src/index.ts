@@ -69,7 +69,7 @@ export class ShadoPlay {
       )
       this.planner = plugin
 
-      this._context.utils.logger.send({
+      this._context.utils.logger?.send({
         type: 'SUCCESS',
         origin: {
           type: 'PLAY',
@@ -80,7 +80,7 @@ export class ShadoPlay {
         },
       })
     } catch (error) {
-      this._context.utils.logger.send({
+      this._context.utils.logger?.send({
         type: 'ERROR',
         origin: {
           type: 'PLAY',
@@ -107,7 +107,7 @@ export class ShadoPlay {
         const plugin = new client.plugin(...client.props)
         this.clients[client.plugin.metadata.key] = plugin
 
-        this._context.utils.logger.send({
+        this._context.utils.logger?.send({
           type: 'SUCCESS',
           origin: {
             type: 'PLAY',
@@ -118,7 +118,7 @@ export class ShadoPlay {
           },
         })
       } catch (error) {
-        this._context.utils.logger.send({
+        this._context.utils.logger?.send({
           type: 'ERROR',
           origin: {
             type: 'PLAY',
@@ -136,7 +136,7 @@ export class ShadoPlay {
   //
 
   setup = () => {
-    this._context.utils.logger.send({
+    this._context.utils.logger?.send({
       type: 'LOG',
       origin: {
         type: 'PLAY',
@@ -154,7 +154,7 @@ export class ShadoPlay {
   }
 
   start = async () => {
-    this._context.utils.logger.send({
+    this._context.utils.logger?.send({
       type: 'LOG',
       origin: {
         type: 'PLAY',
@@ -167,10 +167,10 @@ export class ShadoPlay {
 
     // NOTE: Start the planner loop.
     try {
-      await this.planner.setup()
-      this.planner.start()
+      await this.planner?.setup()
+      this.planner?.start()
     } catch (error) {
-      this._context.utils.logger.send({
+      this._context.utils.logger?.send({
         type: 'ERROR',
         origin: {
           type: 'PLAY',
